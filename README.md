@@ -1,5 +1,5 @@
 # 🎓 课堂专注度检测系统 (Classroom Attention Detection System)
-
+https://github.com/mzniu/classroom_attention
 基于YOLOv8姿态估计的智能课堂行为分析系统，自动识别学生专注状态并生成可视化报告。
 
 ![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
@@ -19,6 +19,7 @@
 - ✅ **多目标跟踪** - 自动识别并跟踪每个学生
 - ✅ **视频标注输出** - 红框标记不专注学生，生成可回放视频
 - ✅ **CSV详细报告** - 包含时间戳、行为类型、持续时长
+- ✅ **图形化界面** - 基于PyQt5的桌面GUI，操作简单直观
 
 ---
 
@@ -78,17 +79,36 @@ pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
 
 ## 📖 使用方法
 
-### 基础命令
+### 方法1: 图形化界面（推荐）
+
+```bash
+# 启动GUI界面
+./run_gui.sh
+
+# 或直接运行
+python3 gui_main.py
+```
+
+**GUI界面功能**：
+- 📁 可视化选择视频文件
+- ⚙️ 直观调整检测参数
+- 📊 实时查看统计图表
+- 📋 查看详细分析报告
+- 💾 一键导出CSV和视频
+
+详细使用说明请查看：[GUI使用说明](docs/GUI使用说明.md)
+
+### 方法2: 命令行模式
 
 ```bash
 # 基础检测（生成CSV报告）
-python ca_v2.py classroom_video.mp4
+python ca_gpu.py classroom_video.mp4
 
 # 保存标注视频（推荐）
-python ca_v2.py classroom_video.mp4 --save-video
+python ca_gpu.py classroom_video.mp4 --save-video
 
 # 调整敏感度（阈值越低越严格）
-python ca_v2.py classroom_video.mp4 --threshold 40 --save-video
+python ca_gpu.py classroom_video.mp4 --threshold 40 --save-video
 ```
 
 ### 高级参数

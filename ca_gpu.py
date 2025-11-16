@@ -253,12 +253,13 @@ class ClassroomMonitor:
         self.attention_records = []
         self.state_tracker = StudentStateTracker()  # **新增状态追踪器**
         
-        if config.DEVICE == 0:
+        if config.DEVICE == 0 and torch.cuda.is_available():
             gpu_name = torch.cuda.get_device_name(0)
             gpu_memory = torch.cuda.get_device_properties(0).total_memory / 1024**3
             print(f"✓ GPU加速启用: {gpu_name} ({gpu_memory:.1f} GB)")
         else:
             print("⚠ 使用CPU模式")
+            config.DEVICE = 'cpu'  # 强制使用CPU
     
     def process(self, max_frames=0):
         """处理视频"""
@@ -270,9 +271,11 @@ class ClassroomMonitor:
         # 加载模型
         print("步骤1: 加载YOLOv8-pose模型...")
         yolo = YOLO(self.config.POSE_MODEL)
-        if self.config.DEVICE == 0:
+        if self.config.DEVICE == 0 and torch.cuda.is_available():
             yolo.to("cuda")
-        
+        else:
+            yolo.to("cpu")
+
         print(f"✓ 模型加载成功\n")
         
         # 打开视频
@@ -297,16 +300,48 @@ class ClassroomMonitor:
         # 初始化视频写入器
         video_writer = None
         if self.config.OUTPUT_VIDEO:
-            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-            video_writer = cv2.VideoWriter(
-                self.config.OUTPUT_VIDEO_PATH, 
-                fourcc, 
-                fps / (self.config.SKIP_FRAMES + 1), 
-                (width, height)
-            )
-            if not video_writer.isOpened():
-                raise ValueError(f"无法创建视频文件: {self.config.OUTPUT_VIDEO_PATH}")
-            print(f"✓ 视频输出: {os.path.abspath(self.config.OUTPUT_VIDEO_PATH)}\n")
+            # 尝试多种编码器以提高兼容性
+            output_fps = fps / (self.config.SKIP_FRAMES + 1)
+
+            # 优先使用H.264编码器（兼容性最好）
+            codecs_to_try = [
+                ('avc1', '.mp4'),  # H.264 (最佳兼容性)
+                ('mp4v', '.mp4'),  # MPEG-4 (备选)
+                ('XVID', '.avi'),  # Xvid (备选)
+            ]
+
+            video_writer = None
+            for codec, ext in codecs_to_try:
+                try:
+                    # 根据编码器调整输出文件扩展名
+                    output_path = self.config.OUTPUT_VIDEO_PATH
+                    if not output_path.endswith(ext):
+                        base_name = os.path.splitext(output_path)[0]
+                        output_path = base_name + ext
+
+                    fourcc = cv2.VideoWriter_fourcc(*codec)
+                    temp_writer = cv2.VideoWriter(
+                        output_path,
+                        fourcc,
+                        output_fps,
+                        (width, height)
+                    )
+
+                    if temp_writer.isOpened():
+                        video_writer = temp_writer
+                        self.config.OUTPUT_VIDEO_PATH = output_path
+                        print(f"✓ 视频编码器: {codec}")
+                        print(f"✓ 输出帧率: {output_fps:.2f} fps")
+                        print(f"✓ 视频输出: {os.path.abspath(output_path)}\n")
+                        break
+                    else:
+                        temp_writer.release()
+                except Exception as e:
+                    print(f"  尝试编码器 {codec} 失败: {e}")
+                    continue
+
+            if video_writer is None or not video_writer.isOpened():
+                raise ValueError(f"无法创建视频文件，所有编码器均失败")
         
         print("步骤3: 开始GPU加速检测...")
         print("行为: 低头(短暂/长期) | 闭眼 | 发呆 | 侧身 | 手部异常\n")
@@ -335,7 +370,7 @@ class ClassroomMonitor:
                     conf=self.config.CONFIDENCE_THRESHOLD,
                     persist=True,
                     tracker="bytetrack.yaml",
-                    device=0,
+                    device=self.config.DEVICE,
                     verbose=False
                 )
                 
@@ -438,7 +473,26 @@ class ClassroomMonitor:
                 cap.release()
                 if video_writer:
                     video_writer.release()
-                    print(f"\n✓ 标注视频已保存: {os.path.abspath(self.config.OUTPUT_VIDEO_PATH)}")
+                    output_path = os.path.abspath(self.config.OUTPUT_VIDEO_PATH)
+                    print(f"\n✓ 标注视频已保存: {output_path}")
+
+                    # 验证视频文件是否可读
+                    if os.path.exists(self.config.OUTPUT_VIDEO_PATH):
+                        file_size = os.path.getsize(self.config.OUTPUT_VIDEO_PATH) / (1024 * 1024)
+                        print(f"✓ 文件大小: {file_size:.2f} MB")
+
+                        # 尝试打开视频验证
+                        test_cap = cv2.VideoCapture(self.config.OUTPUT_VIDEO_PATH)
+                        if test_cap.isOpened():
+                            test_fps = test_cap.get(cv2.CAP_PROP_FPS)
+                            test_frames = int(test_cap.get(cv2.CAP_PROP_FRAME_COUNT))
+                            test_cap.release()
+                            print(f"✓ 视频验证成功: {test_frames}帧, {test_fps:.2f}fps")
+                            print(f"✓ 可以使用VLC、QuickTime等播放器打开")
+                        else:
+                            test_cap.release()
+                            print(f"⚠ 警告: 视频文件可能损坏，请尝试使用VLC播放器打开")
+
                 if torch.cuda.is_available():
                     torch.cuda.empty_cache()
             except Exception as e:

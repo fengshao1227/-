@@ -1,0 +1,72 @@
+name: 打包应用程序
+
+on:
+  push:
+    tags:
+      - 'v*'  # 当推送v开头的标签时触发，如 v1.0.0
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+      
+      - name: 设置Python环境
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+      
+      - name: 打包exe
+        run: |
+          pyinstaller --name="课堂专注度检测系统" ^
+                      --windowed ^
+                      --onefile ^
+                      --icon=icon.ico ^
+                      --add-data "yolov8n-pose.pt;." ^
+                      gui_main.py
+      
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-exe
+          path: dist/课堂专注度检测系统.exe
+  
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+      
+      - name: 设置Python环境
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+      
+      - name: 打包app
+        run: |
+          pyinstaller --name="课堂专注度检测系统" \
+                      --windowed \
+                      --onefile \
+                      --add-data "yolov8n-pose.pt:." \
+                      gui_main.py
+      
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v3
+        with:
+          name: macos-app
+          path: dist/课堂专注度检测系统.app
+

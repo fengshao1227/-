@@ -1,0 +1,72 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 虚拟环境
+venv/
+ENV/
+env/
+.venv
+
+# PyInstaller
+*.manifest
+*.spec
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# 输出文件
+output_annotated.mp4
+*_annotated.mp4
+attention_report.csv
+*.csv
+
+# 测试视频（太大，不要提交）
+*.mp4
+*.avi
+*.mov
+
+# 模型文件（如果太大可以排除，使用时单独下载）
+# yolov8n-pose.pt
+
+# 日志文件
+*.log
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# PyTorch
+*.pth
+*.pt.bak
+
+# 临时文件
+*.tmp
+*.temp
+
