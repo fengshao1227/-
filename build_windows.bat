@@ -32,6 +32,10 @@ pyinstaller --name="课堂专注度检测系统" ^
             --hidden-import=PyQt6.QtWidgets ^
             --collect-all PyQt6 ^
             --collect-all ultralytics ^
+            --exclude-module PySide6 ^
+            --exclude-module tkinter ^
+            --exclude-module IPython ^
+            --exclude-module jupyter ^
             gui_main.py
 
 echo.

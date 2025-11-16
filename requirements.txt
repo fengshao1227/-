@@ -6,9 +6,12 @@ opencv-python>=4.8.0
 numpy>=1.24.0
 pandas>=2.0.0
 
-# GUI依赖
-PyQt5>=5.15.0
+# GUI依赖 (注意：使用PyQt6，不是PyQt5)
+PyQt6>=6.4.0
 matplotlib>=3.7.0
 
 # 其他依赖
 Pillow>=10.0.0
+
+# 打包依赖
+pyinstaller>=6.0.0

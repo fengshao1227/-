@@ -26,7 +26,46 @@ jobs:
 
       - name: 打包exe
         run: |
-          pyinstaller --name="课堂专注度检测系统" --windowed --onefile --add-data "yolov8m-pose.pt;." --hidden-import=cv2 --hidden-import=torch --hidden-import=ultralytics --hidden-import=PyQt6 --hidden-import=PyQt6.QtCore --hidden-import=PyQt6.QtGui --hidden-import=PyQt6.QtWidgets --collect-all PyQt6 --collect-all ultralytics gui_main.py
+          pyinstaller --clean ^
+                      --name="课堂专注度检测系统" ^
+                      --windowed ^
+                      --onefile ^
+                      --noconfirm ^
+                      --add-data "yolov8m-pose.pt;." ^
+                      --hidden-import=cv2 ^
+                      --hidden-import=numpy ^
+                      --hidden-import=pandas ^
+                      --hidden-import=torch ^
+                      --hidden-import=torchvision ^
+                      --hidden-import=ultralytics ^
+                      --hidden-import=ultralytics.engine ^
+                      --hidden-import=ultralytics.models ^
+                      --hidden-import=ultralytics.nn ^
+                      --hidden-import=ultralytics.utils ^
+                      --hidden-import=PyQt6 ^
+                      --hidden-import=PyQt6.QtCore ^
+                      --hidden-import=PyQt6.QtGui ^
+                      --hidden-import=PyQt6.QtWidgets ^
+                      --hidden-import=matplotlib ^
+                      --hidden-import=matplotlib.pyplot ^
+                      --hidden-import=matplotlib.backends ^
+                      --hidden-import=matplotlib.backends.backend_qtagg ^
+                      --hidden-import=PIL ^
+                      --hidden-import=PIL.Image ^
+                      --collect-all PyQt6 ^
+                      --collect-all ultralytics ^
+                      --collect-all torch ^
+                      --collect-submodules matplotlib ^
+                      --exclude-module PySide6 ^
+                      --exclude-module PySide2 ^
+                      --exclude-module PyQt5 ^
+                      --exclude-module tkinter ^
+                      --exclude-module IPython ^
+                      --exclude-module jupyter ^
+                      --exclude-module notebook ^
+                      --exclude-module pytest ^
+                      --exclude-module sphinx ^
+                      gui_main.py
 
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
@@ -53,19 +92,45 @@ jobs:
 
       - name: 打包app
         run: |
-          pyinstaller --name="课堂专注度检测系统" \
+          pyinstaller --clean \
+                      --name="课堂专注度检测系统" \
                       --windowed \
                       --onefile \
+                      --noconfirm \
                       --add-data "yolov8m-pose.pt:." \
                       --hidden-import=cv2 \
+                      --hidden-import=numpy \
+                      --hidden-import=pandas \
                       --hidden-import=torch \
+                      --hidden-import=torchvision \
                       --hidden-import=ultralytics \
+                      --hidden-import=ultralytics.engine \
+                      --hidden-import=ultralytics.models \
+                      --hidden-import=ultralytics.nn \
+                      --hidden-import=ultralytics.utils \
                       --hidden-import=PyQt6 \
                       --hidden-import=PyQt6.QtCore \
                       --hidden-import=PyQt6.QtGui \
                       --hidden-import=PyQt6.QtWidgets \
+                      --hidden-import=matplotlib \
+                      --hidden-import=matplotlib.pyplot \
+                      --hidden-import=matplotlib.backends \
+                      --hidden-import=matplotlib.backends.backend_qtagg \
+                      --hidden-import=PIL \
+                      --hidden-import=PIL.Image \
                       --collect-all PyQt6 \
                       --collect-all ultralytics \
+                      --collect-all torch \
+                      --collect-submodules matplotlib \
+                      --exclude-module PySide6 \
+                      --exclude-module PySide2 \
+                      --exclude-module PyQt5 \
+                      --exclude-module tkinter \
+                      --exclude-module IPython \
+                      --exclude-module jupyter \
+                      --exclude-module notebook \
+                      --exclude-module pytest \
+                      --exclude-module sphinx \
                       gui_main.py
 
       - name: 上传构建产物
