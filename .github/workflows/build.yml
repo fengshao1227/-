@@ -26,16 +26,7 @@ jobs:
 
       - name: 打包exe
         run: |
-          pyinstaller --name="课堂专注度检测系统" ^
-                      --windowed ^
-                      --onefile ^
-                      --add-data "yolov8m-pose.pt;." ^
-                      --hidden-import=cv2 ^
-                      --hidden-import=torch ^
-                      --hidden-import=ultralytics ^
-                      --hidden-import=PyQt6 ^
-                      --collect-all ultralytics ^
-                      gui_main.py
+          pyinstaller --name="课堂专注度检测系统" --windowed --onefile --add-data "yolov8m-pose.pt;." --hidden-import=cv2 --hidden-import=torch --hidden-import=ultralytics --hidden-import=PyQt6 --collect-all ultralytics gui_main.py
 
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
@@ -78,4 +69,63 @@ jobs:
         with:
           name: macos-app
           path: dist/课堂专注度检测系统
+
+  create-release:
+    needs: [build-windows, build-macos]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+    steps:
+      - name: 下载Windows构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-exe
+          path: ./windows
+
+      - name: 下载macOS构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-app
+          path: ./macos
+
+      - name: 压缩文件
+        run: |
+          cd windows
+          zip -r ../课堂专注度检测系统-Windows.zip .
+          cd ../macos
+          zip -r ../课堂专注度检测系统-macOS.zip .
+          cd ..
+
+      - name: 创建Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            课堂专注度检测系统-Windows.zip
+            课堂专注度检测系统-macOS.zip
+          body: |
+            ## 课堂专注度检测系统 ${{ github.ref_name }}
+
+            ### 🎉 新功能
+            - ✅ PyQt6桌面GUI界面
+            - ✅ 视频在线预览（支持播放控制、倍速、跳帧）
+            - ✅ 统计图表可视化
+            - ✅ 详细报告展示
+            - ✅ CSV数据导出
+
+            ### 📥 下载说明
+
+            **Windows用户**:
+            1. 下载 `课堂专注度检测系统-Windows.zip`
+            2. 解压后运行 `课堂专注度检测系统.exe`
+
+            **macOS用户**:
+            1. 下载 `课堂专注度检测系统-macOS.zip`
+            2. 解压后运行 `课堂专注度检测系统`
+            3. 如果提示"无法验证开发者"，右键点击 -> 打开
+
+            ### 📖 使用文档
+            详见项目README和docs文件夹
+          draft: false
+          prerelease: false
 
