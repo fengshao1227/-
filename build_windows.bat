@@ -22,13 +22,24 @@ echo [3/4] 开始打包exe...
 pyinstaller --name="课堂专注度检测系统" ^
             --windowed ^
             --onefile ^
-            --add-data "yolov8n-pose.pt;." ^
+            --add-data "yolov8m-pose.pt;." ^
             --hidden-import=cv2 ^
             --hidden-import=torch ^
             --hidden-import=ultralytics ^
             --hidden-import=PyQt6 ^
+            --hidden-import=PyQt6.QtCore ^
+            --hidden-import=PyQt6.QtGui ^
+            --hidden-import=PyQt6.QtWidgets ^
+            --collect-all PyQt6 ^
             --collect-all ultralytics ^
             --collect-all torch ^
+            --copy-metadata torch ^
+            --copy-metadata tqdm ^
+            --copy-metadata regex ^
+            --copy-metadata packaging ^
+            --copy-metadata filelock ^
+            --copy-metadata numpy ^
+            --copy-metadata pillow ^
             gui_main.py
 
 echo.

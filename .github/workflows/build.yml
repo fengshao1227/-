@@ -26,7 +26,7 @@ jobs:
 
       - name: 打包exe
         run: |
-          pyinstaller --name="课堂专注度检测系统" --windowed --onefile --add-data "yolov8m-pose.pt;." --hidden-import=cv2 --hidden-import=torch --hidden-import=ultralytics --hidden-import=PyQt6 --collect-all ultralytics gui_main.py
+          pyinstaller --name="课堂专注度检测系统" --windowed --onefile --add-data "yolov8m-pose.pt;." --hidden-import=cv2 --hidden-import=torch --hidden-import=ultralytics --hidden-import=PyQt6 --hidden-import=PyQt6.QtCore --hidden-import=PyQt6.QtGui --hidden-import=PyQt6.QtWidgets --collect-all PyQt6 --collect-all ultralytics --collect-all torch --copy-metadata torch --copy-metadata tqdm --copy-metadata regex --copy-metadata packaging --copy-metadata filelock --copy-metadata numpy --copy-metadata pillow gui_main.py
 
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
@@ -61,7 +61,19 @@ jobs:
                       --hidden-import=torch \
                       --hidden-import=ultralytics \
                       --hidden-import=PyQt6 \
+                      --hidden-import=PyQt6.QtCore \
+                      --hidden-import=PyQt6.QtGui \
+                      --hidden-import=PyQt6.QtWidgets \
+                      --collect-all PyQt6 \
                       --collect-all ultralytics \
+                      --collect-all torch \
+                      --copy-metadata torch \
+                      --copy-metadata tqdm \
+                      --copy-metadata regex \
+                      --copy-metadata packaging \
+                      --copy-metadata filelock \
+                      --copy-metadata numpy \
+                      --copy-metadata pillow \
                       gui_main.py
 
       - name: 上传构建产物
